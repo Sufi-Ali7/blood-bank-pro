@@ -306,10 +306,10 @@ router.post('/verify-phone-otp', async (req, res) => {
 });
 
 
-// Get current user
 router.get('/me', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
+
     if (!authHeader) {
       return res.status(401).json({ message: 'No token' });
     }
@@ -326,7 +326,6 @@ router.get('/me', async (req, res) => {
     res.json({
       user: authResponse(freshUser)
     });
-
   } catch (error) {
     res.status(500).json({
       message: error.message
@@ -335,7 +334,6 @@ router.get('/me', async (req, res) => {
 });
 
 
-// Update profile
 router.patch('/profile', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -347,28 +345,29 @@ router.patch('/profile', async (req, res) => {
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findById(decoded.id);
+    const updateData = {};
 
-    if (!user) {
+    if (typeof req.body.firstName !== 'undefined') updateData.firstName = req.body.firstName;
+    if (typeof req.body.lastName !== 'undefined') updateData.lastName = req.body.lastName;
+    if (typeof req.body.phone !== 'undefined') updateData.phone = req.body.phone;
+    if (typeof req.body.city !== 'undefined') updateData.city = req.body.city;
+    if (typeof req.body.address !== 'undefined') updateData.address = req.body.address;
+    if (typeof req.body.bio !== 'undefined') updateData.bio = req.body.bio;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      decoded.id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
       return res.status(404).json({ message: 'User not found' });
     }
-
-    if (typeof req.body.firstName !== 'undefined') user.firstName = req.body.firstName;
-    if (typeof req.body.lastName !== 'undefined') user.lastName = req.body.lastName;
-    if (typeof req.body.phone !== 'undefined') user.phone = req.body.phone;
-    if (typeof req.body.city !== 'undefined') user.city = req.body.city;
-    if (typeof req.body.address !== 'undefined') user.address = req.body.address;
-    if (typeof req.body.bio !== 'undefined') user.bio = req.body.bio;
-
-    await user.save();
-
-    const updatedUser = await User.findById(user._id);
 
     res.json({
       message: 'Profile updated',
       user: authResponse(updatedUser)
     });
-
   } catch (error) {
     res.status(500).json({
       message: error.message
