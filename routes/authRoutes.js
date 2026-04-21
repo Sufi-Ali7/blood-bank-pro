@@ -353,18 +353,20 @@ router.patch('/profile', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    user.firstName = req.body.firstName || user.firstName;
-    user.lastName = req.body.lastName || user.lastName;
-    user.phone = req.body.phone || user.phone;
-    user.city = req.body.city || user.city;
-    user.address = req.body.address || user.address;
-    user.bio = req.body.bio || user.bio;
+    if (typeof req.body.firstName !== 'undefined') user.firstName = req.body.firstName;
+    if (typeof req.body.lastName !== 'undefined') user.lastName = req.body.lastName;
+    if (typeof req.body.phone !== 'undefined') user.phone = req.body.phone;
+    if (typeof req.body.city !== 'undefined') user.city = req.body.city;
+    if (typeof req.body.address !== 'undefined') user.address = req.body.address;
+    if (typeof req.body.bio !== 'undefined') user.bio = req.body.bio;
 
     await user.save();
 
+    const updatedUser = await User.findById(user._id);
+
     res.json({
       message: 'Profile updated',
-      user: authResponse(user)
+      user: authResponse(updatedUser)
     });
 
   } catch (error) {
