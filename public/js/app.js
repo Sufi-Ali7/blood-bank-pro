@@ -615,15 +615,19 @@ async function downloadMyReceiptPdf() {
 async function loadProfile() {
   try {
     if (!currentUser) return;
+
     const me = await apiFetch(`${API}/auth/me`);
-    const u = me.user;
+    const u = me.user || me;
+
     document.getElementById('profile-fname').value = u.firstName || '';
     document.getElementById('profile-lname').value = u.lastName || '';
     document.getElementById('profile-phone').value = u.phone || '';
     document.getElementById('profile-city').value = u.city || 'lucknow';
     document.getElementById('profile-address').value = u.address || '';
     document.getElementById('profile-bio').value = u.bio || '';
-  } catch (err) { toast(err.message, 'error'); }
+  } catch (err) {
+    toast(err.message, 'error');
+  }
 }
 
 async function saveProfile(withLocation = false) {
@@ -636,14 +640,24 @@ async function saveProfile(withLocation = false) {
       address: document.getElementById('profile-address').value.trim(),
       bio: document.getElementById('profile-bio').value.trim(),
     };
+
     if (withLocation && currentLocation) {
       payload.latitude = currentLocation.latitude;
       payload.longitude = currentLocation.longitude;
     }
-    const data = await apiFetch(`${API}/auth/profile`, { method: 'PATCH', body: JSON.stringify(payload) });
-    currentUser = data.user; localStorage.setItem('bb_user', JSON.stringify(currentUser));
+
+    const data = await apiFetch(`${API}/auth/profile`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload)
+    });
+
+    currentUser = data.user || data;
+    localStorage.setItem('bb_user', JSON.stringify(currentUser));
+
     toast('Profile updated', 'success');
-  } catch (err) { toast(err.message, 'error'); }
+  } catch (err) {
+    toast(err.message, 'error');
+  }
 }
 
 async function loadAdminDashboard() {
