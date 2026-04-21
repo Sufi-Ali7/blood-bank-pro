@@ -317,14 +317,14 @@ router.get('/me', async (req, res) => {
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findById(decoded.id);
+    const freshUser = await User.findById(decoded.id);
 
-    if (!user) {
+    if (!freshUser) {
       return res.status(404).json({ message: 'User not found' });
     }
 
     res.json({
-      user: authResponse(user)
+      user: authResponse(freshUser)
     });
 
   } catch (error) {
