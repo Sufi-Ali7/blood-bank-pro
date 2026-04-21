@@ -619,12 +619,17 @@ async function loadProfile() {
     const me = await apiFetch(`${API}/auth/me`);
     const u = me.user || me;
 
+    // FIX
+    currentUser = u;
+    localStorage.setItem('bb_user', JSON.stringify(u));
+
     document.getElementById('profile-fname').value = u.firstName || '';
     document.getElementById('profile-lname').value = u.lastName || '';
     document.getElementById('profile-phone').value = u.phone || '';
     document.getElementById('profile-city').value = u.city || 'lucknow';
     document.getElementById('profile-address').value = u.address || '';
     document.getElementById('profile-bio').value = u.bio || '';
+
   } catch (err) {
     toast(err.message, 'error');
   }
