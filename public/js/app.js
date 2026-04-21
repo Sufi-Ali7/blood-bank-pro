@@ -542,21 +542,52 @@ async function completeRequest(id) {
 async function loadDonorDashboard() {
   try {
     if (!currentUser || currentUser.role === 'admin' || currentUser.role === 'manager') return;
+
     const profile = await apiFetch(`${API}/donor/me`);
     const donations = await apiFetch(`${API}/donor/donations`);
     latestDonations = donations.donations || [];
+
     const notes = await apiFetch(`${API}/notifications`);
-    document.getElementById('donor-name').textContent = `${profile.user.firstName} ${profile.user.lastName}`;
-    document.getElementById('donor-subtitle').textContent = `Blood group ${profile.user.bloodGroup || '-'} • ${profile.user.city}`;
+
+    document.getElementById('donor-name').textContent =
+      `${profile.firstName} ${profile.lastName}`;
+
+    document.getElementById('donor-subtitle').textContent =
+      `Blood group ${profile.bloodGroup || '-'} • ${profile.city}`;
+
     document.getElementById('don-stat-1').textContent = profile.totalDonations;
     document.getElementById('don-stat-2').textContent = profile.totalLivesSaved;
     document.getElementById('don-stat-3').textContent = profile.lastDonationVolume;
     document.getElementById('don-stat-4').textContent = profile.daysUntilNextEligible;
-    document.getElementById('availability-toggle').checked = !!profile.user.isAvailable;
-    document.getElementById('availability-toggle').disabled = !profile.user.isEligible;
-    document.getElementById('donation-history').innerHTML = latestDonations.length ? latestDonations.map(d => `<div class="rounded-2xl border p-4"><div class="font-bold">${d.hospitalName}</div><div class="text-sm text-slate-500">${new Date(d.donatedAt).toLocaleDateString()} • ${d.quantityMl}ml • ${d.bloodGroup}</div></div>`).join('') : '<div class="rounded-2xl border p-4">No donation history yet.</div>';
-    document.getElementById('notification-list').innerHTML = notes.notifications.length ? notes.notifications.map(n => `<div class="rounded-2xl border p-4"><div class="font-bold">${n.title}</div><div class="text-sm text-slate-500">${n.message}</div></div>`).join('') : '<div class="rounded-2xl border p-4">No notifications yet.</div>';
-  } catch (err) { toast(err.message, 'error'); }
+
+    document.getElementById('availability-toggle').checked = !!profile.isAvailable;
+    document.getElementById('availability-toggle').disabled = !profile.isEligible;
+
+    document.getElementById('donation-history').innerHTML =
+      latestDonations.length
+        ? latestDonations.map(d => `
+          <div class="rounded-2xl border p-4">
+            <div class="font-bold">${d.hospitalName}</div>
+            <div class="text-sm text-slate-500">
+              ${new Date(d.donatedAt).toLocaleDateString()} • ${d.quantityMl}ml • ${d.bloodGroup}
+            </div>
+          </div>
+        `).join('')
+        : '<div class="rounded-2xl border p-4">No donation history yet.</div>';
+
+    document.getElementById('notification-list').innerHTML =
+      notes.notifications.length
+        ? notes.notifications.map(n => `
+          <div class="rounded-2xl border p-4">
+            <div class="font-bold">${n.title}</div>
+            <div class="text-sm text-slate-500">${n.message}</div>
+          </div>
+        `).join('')
+        : '<div class="rounded-2xl border p-4">No notifications yet.</div>';
+
+  } catch (err) {
+    toast(err.message, 'error');
+  }
 }
 
 async function toggleAvailability(isAvailable) {
