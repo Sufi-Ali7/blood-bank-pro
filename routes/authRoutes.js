@@ -29,6 +29,8 @@ function authResponse(user) {
     role: user.role,
     city: user.city,
     state: user.state,
+    address: user.address,
+    bio: user.bio,
     isAvailable: user.isAvailable,
     isEligible: user.isEligible,
     isEmailVerified: user.isEmailVerified,
