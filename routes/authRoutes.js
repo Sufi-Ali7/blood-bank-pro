@@ -30,7 +30,7 @@ function authResponse(user) {
     city: user.city,
     state: user.state,
     address: user.address,
-    bio: user.bio,
+   bio: user.bio,
     isAvailable: user.isAvailable,
     isEligible: user.isEligible,
     isEmailVerified: user.isEmailVerified,
